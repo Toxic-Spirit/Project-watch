@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="container" style="max-width: 700px; margin: 40px auto;">
+    <h1 style="color: var(--color-navy); font-family: 'Times New Roman', serif; margin-bottom: 5px;">Secure Checkout</h1>
+    <p style="color: #888; margin-bottom: 30px;">Complete your purchase</p>
+
+    <!-- Order Summary -->
+    <div style="background: #fff; border: 1px solid #e0ddd6; border-radius: 4px; padding: 20px; margin-bottom: 25px;">
+        <h3 style="color: var(--color-navy); margin-bottom: 15px; font-size: 1em; text-transform: uppercase; letter-spacing: 0.1em;">Order Summary</h3>
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
+            <thead>
+                <tr style="border-bottom: 1px solid #eee;">
+                    <th style="text-align: left; padding: 8px 0; color: #666;">Item</th>
+                    <th style="text-align: center; padding: 8px 0; color: #666;">Qty</th>
+                    <th style="text-align: right; padding: 8px 0; color: #666;">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item_data in cart_items %}
+                <tr style="border-bottom: 1px solid #f5f5f5;">
+                    <td style="padding: 10px 0;">{{ item_data.product.name }}</td>
+                    <td style="text-align: center; padding: 10px 0;">{{ item_data.item.quantity }}</td>
+                    <td style="text-align: right; padding: 10px 0;">₹{{ "%.2f"|format(item_data.item_total | float) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2" style="padding: 12px 0; font-weight: bold; font-size: 1.1em; color: var(--color-navy);">Total</td>
+                    <td style="text-align: right; padding: 12px 0; font-weight: bold; font-size: 1.1em; color: var(--color-navy);">₹{{ "%.2f"|format(total_price | float) }}</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <!-- Shipping Address -->
+    <div style="background: #fff; border: 1px solid #e0ddd6; border-radius: 4px; padding: 20px; margin-bottom: 25px;">
+        <h3 style="color: var(--color-navy); margin-bottom: 15px; font-size: 1em; text-transform: uppercase; letter-spacing: 0.1em;">Shipping Address</h3>
+        <form id="checkout-form" action="{{ url_for('checkout') }}" method="POST">
+
+            <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                <div style="flex: 1;">
+                    <label style="display: block; font-size: 0.75em; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-navy); margin-bottom: 5px;">Full Name</label>
+                    <input type="text" name="full_name" required maxlength="60"
+                           style="width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 3px; font-size: 0.95em;">
+                </div>
+                <div style="flex: 1;">
+                    <label style="display: block; font-size: 0.75em; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-navy); margin-bottom: 5px;">Phone Number</label>
+                    <!-- Phone: exactly 10 digits, no more -->
+                    <input type="tel" name="phone" required
+                           maxlength="10"
+                           pattern="[0-9]{10}"
+                           title="Enter exactly 10 digits"
+                           oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)"
+                           style="width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 3px; font-size: 0.95em;"
+                           placeholder="10 digit number">
+                </div>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; font-size: 0.75em; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-navy); margin-bottom: 5px;">Address Line</label>
+                <input type="text" name="address" required maxlength="150"
+                       style="width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 3px; font-size: 0.95em;"
+                       placeholder="House/Flat No, Street, Area">
+            </div>
+
+            <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                <div style="flex: 1;">
+                    <label style="display: block; font-size: 0.75em; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-navy); margin-bottom: 5px;">City</label>
+                    <input type="text" name="city" required maxlength="50"
+                           style="width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 3px; font-size: 0.95em;">
+                </div>
+                <div style="flex: 1;">
+                    <label style="display: block; font-size: 0.75em; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-navy); margin-bottom: 5px;">State</label>
+                    <input type="text" name="state" required maxlength="50"
+                           style="width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 3px; font-size: 0.95em;">
+                </div>
+                <div style="flex: 1;">
+                    <label style="display: block; font-size: 0.75em; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-navy); margin-bottom: 5px;">PIN Code</label>
+                    <!-- PIN: exactly 6 digits, no more -->
+                    <input type="text" name="pincode" required
+                           maxlength="6"
+                           pattern="[0-9]{6}"
+                           title="Enter exactly 6 digits"
+                           oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6)"
+                           style="width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 3px; font-size: 0.95em;"
+                           placeholder="6 digits">
+                </div>
+            </div>
+
+            <!-- Payment Method -->
+            <div style="background: #fff; border: 1px solid #e0ddd6; border-radius: 4px; padding: 20px; margin-top: 10px;">
+                <h3 style="color: var(--color-navy); margin-bottom: 15px; font-size: 1em; text-transform: uppercase; letter-spacing: 0.1em;">Payment Method</h3>
+
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button type="button" onclick="showPayment('card')" id="tab-card"
+                            style="flex: 1; padding: 10px; border: 2px solid var(--color-gold); background: var(--color-gold); color: var(--color-navy); font-weight: 600; border-radius: 3px; cursor: pointer; font-size: 0.85em;">
+                        💳 Credit / Debit Card
+                    </button>
+                    <button type="button" onclick="showPayment('upi')" id="tab-upi"
+                            style="flex: 1; padding: 10px; border: 2px solid #ddd; background: #fff; color: #555; font-weight: 600; border-radius: 3px; cursor: pointer; font-size: 0.85em;">
+                        📱 UPI
+                    </button>
+                    <button type="button" onclick="showPayment('cod')" id="tab-cod"
+                            style="flex: 1; padding: 10px; border: 2px solid #ddd; background: #fff; color: #555; font-weight: 600; border-radius: 3px; cursor: pointer; font-size: 0.85em;">
+                        💵 Cash on Delivery
+                    </button>
+                </div>
+
+                <input type="hidden" name="payment_method" id="payment_method" value="card">
+
+                <!-- Card Payment -->
+                <div id="payment-card">
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; font-size: 0.75em; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-navy); margin-bottom: 5px;">Cardholder Name</label>
+                        <input type="text" name="card_name" id="card_name" maxlength="60"
+                               style="width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 3px; font-size: 0.95em;"
+                               placeholder="Name on card">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; font-size: 0.75em; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-navy); margin-bottom: 5px;">Card Number</label>
+                        <!-- Card: exactly 16 digits displayed as XXXX XXXX XXXX XXXX -->
+                        <input type="text" name="card_number" id="card_number" maxlength="19"
+                               style="width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 3px; font-size: 0.95em;"
+                               placeholder="XXXX XXXX XXXX XXXX"
+                               oninput="formatCard(this)">
+                    </div>
+                    <div style="display: flex; gap: 15px;">
+                        <div style="flex: 1;">
+                            <label style="display: block; font-size: 0.75em; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-navy); margin-bottom: 5px;">Expiry Date</label>
+                            <input type="text" name="card_expiry" id="card_expiry" maxlength="5"
+                                   style="width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 3px; font-size: 0.95em;"
+                                   placeholder="MM/YY"
+                                   oninput="formatExpiry(this)">
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="display: block; font-size: 0.75em; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-navy); margin-bottom: 5px;">CVV</label>
+                            <!-- CVV: exactly 3 digits -->
+                            <input type="password" name="card_cvv" id="card_cvv"
+                                   maxlength="3"
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 3)"
+                                   style="width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 3px; font-size: 0.95em;"
+                                   placeholder="•••">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- UPI Payment -->
+                <div id="payment-upi" style="display: none;">
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; font-size: 0.75em; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-navy); margin-bottom: 5px;">UPI ID</label>
+                        <input type="text" name="upi_id" id="upi_id" maxlength="50"
+                               style="width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 3px; font-size: 0.95em;"
+                               placeholder="yourname@upi">
+                    </div>
+                    <p style="font-size: 0.85em; color: #888;">Accepted: GPay, PhonePe, Paytm, BHIM</p>
+                </div>
+
+                <!-- Cash on Delivery -->
+                <div id="payment-cod" style="display: none;">
+                    <div style="background: #f9f7f2; border: 1px solid #e0ddd6; border-radius: 3px; padding: 15px;">
+                        <p style="margin: 0; color: #555; font-size: 0.95em;">💵 Pay with cash when your order is delivered. Please keep exact change ready.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Place Order Button -->
+            <button type="submit"
+                    style="width: 100%; margin-top: 25px; padding: 14px; background: var(--color-navy); color: var(--color-gold); border: 1px solid var(--color-gold); border-radius: 3px; font-size: 1em; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer;">
+                Place Order — ₹{{ "%.2f"|format(total_price | float) }}
+            </button>
+
+        </form>
+    </div>
+</main>
+
+<script>
+function showPayment(method) {
+    document.getElementById('payment-card').style.display = 'none';
+    document.getElementById('payment-upi').style.display = 'none';
+    document.getElementById('payment-cod').style.display = 'none';
+    ['card', 'upi', 'cod'].forEach(function(t) {
+        var tab = document.getElementById('tab-' + t);
+        tab.style.background = '#fff';
+        tab.style.color = '#555';
+        tab.style.border = '2px solid #ddd';
+    });
+    document.getElementById('payment-' + method).style.display = 'block';
+    var activeTab = document.getElementById('tab-' + method);
+    activeTab.style.background = 'var(--color-gold)';
+    activeTab.style.color = 'var(--color-navy)';
+    activeTab.style.border = '2px solid var(--color-gold)';
+    document.getElementById('payment_method').value = method;
+}
+
+// Card: only digits, max 16, formatted as XXXX XXXX XXXX XXXX
+function formatCard(input) {
+    var value = input.value.replace(/\D/g, '').substring(0, 16);
+    var formatted = value.match(/.{1,4}/g);
+    input.value = formatted ? formatted.join(' ') : value;
+}
+
+// Expiry: MM/YY format only
+function formatExpiry(input) {
+    var value = input.value.replace(/\D/g, '').substring(0, 4);
+    if (value.length >= 2) {
+        input.value = value.substring(0, 2) + '/' + value.substring(2);
+    } else {
+        input.value = value;
+    }
+}
+</script>
+{% endblock %}

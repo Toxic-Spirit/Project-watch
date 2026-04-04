@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="homepage-content">
+    <h1>The World's Finest Timepieces</h1>
+    <p style="text-align:center; color: var(--color-gold); letter-spacing: 0.15em; font-size: 0.8em; text-transform: uppercase; margin-bottom: 24px;">Curated Luxury Watch Collection</p>
+
+    <section class="homepage-video-promo" style="margin-top: 20px; text-align: center;">
+        <h3>Luxury Showcase</h3>
+        <div class="video-wrapper">
+            <video width="500" height="300" controls autoplay muted loop>
+                <source src="{{ url_for('static', filename='videos/deaLon.video.mp4') }}" type="video/mp4">
+                Sorry, your browser doesn't support embedded videos.
+            </video>
+        </div>
+    </section>
+
+    <hr>
+
+    <h2>Featured Timepieces</h2>
+    <div class="product-grid">
+        {% for item in products_with_images %}
+        <div class="product-card">
+            <a href="{{ url_for('product_detail', product_id=item.product.product_id) }}">
+                <img src="{{ item.image_url }}" alt="{{ item.product.name }}" class="product-image">
+                <div class="product-info">
+                    <h4>{{ item.product.name }}</h4>
+                    <p class="product-price">₹{{ "%.2f"|format(item.product.price | float) }}</p>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</main>
+{% endblock %}

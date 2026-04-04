@@ -1,0 +1,106 @@
+<!-- templates/base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeaLon | {{ title }}</title>
+    <!-- Link to your CSS file -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <!-- 1. TOP SERVICE BAR (All links functional) -->
+        <nav class="top-service-bar">
+            <ul>
+                <li><a href="{{ url_for('order_tracking') }}">Order Tracking</a></li>
+                <li><a href="{{ url_for('customer_service') }}">Customer Service</a></li>
+                <li><a href="{{ url_for('about_us') }}">About Us</a></li>
+                <li><a href="{{ url_for('contact_us') }}">Contact Us</a></li>
+                <li><a href="{{ url_for('terms_and_conditions') }}">T&C</a></li>
+                <!-- Login/Profile Links -->
+                {% if 'user_id' in session %}
+                    <li><a href="{{ url_for('my_profile') }}">My Profile</a> ({{ session.username }})</li>
+                    <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('login', user_role='customer') }}">Customer Login</a></li>
+                    <li><a href="{{ url_for('login', user_role='seller') }}">Seller Login</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+
+        <!-- 2. LOGO AND FUNCTIONAL SEARCH BAR -->
+        <div class="logo-search-area">
+            <a href="{{ url_for('index') }}" class="logo">DeaLon</a>
+            
+            <!-- Search bar with inline price & brand filters -->
+            <div class="main-search-bar">
+                <form action="{{ url_for('search') }}" method="GET" class="search-form">
+                    <input type="text" name="q" placeholder="Search watches, brands, and collections..." required>
+                    
+                    <!-- Inline filters -->
+                    <div class="search-inline-filters">
+                        <input type="number" name="min_price" placeholder="Min ₹" step="1000"
+                               value="{{ request.args.get('min_price', '') }}">
+                        <input type="number" name="max_price" placeholder="Max ₹" step="1000"
+                               value="{{ request.args.get('max_price', '') }}">
+                        <select name="brand">
+                            <option value="">All Brands</option>
+                            {% for b in ['Rolex', 'Jacob & Co', 'Richard Mille', 'Patek Philippe', 'Omega'] %}
+                                <option value="{{ b }}" {% if request.args.get('brand') == b %}selected{% endif %}>{{ b }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <button type="submit">🔍</button>
+                </form>
+            </div>
+            
+            <!-- Cart icon -->
+            <div class="cart-icon">
+                <a href="{{ url_for('view_cart') }}">🛒</a>
+            </div>
+        </div>
+
+        <!-- 3. WATCH BRAND NAVIGATION (replaces old category nav) -->
+        <nav class="main-category-nav">
+            <ul>
+                <li><a href="{{ url_for('category_view', category_name='Rolex') }}">Rolex</a></li>
+                <li><a href="{{ url_for('category_view', category_name='Jacob & Co') }}">Jacob &amp; Co</a></li>
+                <li><a href="{{ url_for('category_view', category_name='Richard Mille') }}">Richard Mille</a></li>
+                <li><a href="{{ url_for('category_view', category_name='Patek Philippe') }}">Patek Philippe</a></li>
+                <li><a href="{{ url_for('category_view', category_name='Omega') }}">Omega</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <!-- Flash messages display login success/failure -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- FOOTER (All links functional) -->
+    <footer class="dealon-footer">
+        <div class="footer-links">
+            <a href="{{ url_for('terms_and_conditions') }}">Conditions of Use & Sale</a>
+            <span class="link-separator">|</span>
+            <a href="{{ url_for('privacy_notice') }}">Privacy Notice</a>
+            <span class="link-separator">|</span>
+            <a href="{{ url_for('ads_policy') }}">Interest-Based Ads</a>
+        </div>
+        <div class="footer-copyright">
+            © 2025, DeaLon, Inc. or its affiliates
+        </div>
+    </footer>
+</body>
+</html>

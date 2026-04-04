@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block content %}
+<main class="container" style="max-width: 800px; margin: 40px auto;">
+
+    <h1 style="font-family: 'Times New Roman', serif; font-weight: 400; color: var(--color-navy); font-size: 2.4em; margin-bottom: 5px;">Contact Us</h1>
+    <p style="color: var(--color-gold); letter-spacing: 0.12em; font-size: 0.8em; text-transform: uppercase; margin-bottom: 35px;">Get in touch with our team</p>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
+
+        <!-- Contact Form -->
+        <div style="background: #fff; border: 1px solid #e0ddd6; border-radius: 4px; padding: 30px;">
+            <h2 style="font-family: 'Times New Roman', serif; font-weight: 400; color: var(--color-navy); font-size: 1.4em; margin-bottom: 20px;">Send a Message</h2>
+
+            <form>
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-size: 0.75em; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-navy); margin-bottom: 5px;">Your Name</label>
+                    <input type="text" placeholder="Full name"
+                           style="width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 3px; font-size: 0.9em; font-family: Arial, sans-serif;">
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-size: 0.75em; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-navy); margin-bottom: 5px;">Email Address</label>
+                    <input type="email" placeholder="your@email.com"
+                           style="width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 3px; font-size: 0.9em; font-family: Arial, sans-serif;">
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-size: 0.75em; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-navy); margin-bottom: 5px;">Subject</label>
+                    <select style="width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 3px; font-size: 0.9em; font-family: Arial, sans-serif;">
+                        <option>Order Enquiry</option>
+                        <option>Product Question</option>
+                        <option>Return / Refund</option>
+                        <option>Seller Support</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 0.75em; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-navy); margin-bottom: 5px;">Message</label>
+                    <textarea rows="5" placeholder="How can we help you?"
+                              style="width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 3px; font-size: 0.9em; font-family: Arial, sans-serif; resize: vertical;"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary-gold" style="width: 100%; padding: 12px; font-size: 0.85em; margin-top: 0;">
+                    Send Message
+                </button>
+            </form>
+        </div>
+
+        <!-- Contact Info -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+
+            <div style="background: #fff; border: 1px solid #e0ddd6; border-radius: 4px; padding: 25px;">
+                <h3 style="color: var(--color-navy); font-size: 0.95em; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.08em;">📍 Our Address</h3>
+                <p style="color: #555; font-size: 0.9em; line-height: 1.8; margin: 0;">
+                    DeaLon Watches Pvt. Ltd.<br>
+                    12th Floor, Prestige Tower<br>
+                    MG Road, Bengaluru<br>
+                    Karnataka — 560001, India
+                </p>
+            </div>
+
+            <div style="background: #fff; border: 1px solid #e0ddd6; border-radius: 4px; padding: 25px;">
+                <h3 style="color: var(--color-navy); font-size: 0.95em; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.08em;">📞 Phone & Email</h3>
+                <p style="color: #555; font-size: 0.9em; line-height: 1.8; margin: 0;">
+                    <strong>Customer Support:</strong><br>
+                    +91 98765 43210<br><br>
+                    <strong>Email:</strong><br>
+                    support@dealon.com<br>
+                    sellers@dealon.com
+                </p>
+            </div>
+
+            <div style="background: #fff; border: 1px solid #e0ddd6; border-radius: 4px; padding: 25px;">
+                <h3 style="color: var(--color-navy); font-size: 0.95em; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.08em;">🕐 Business Hours</h3>
+                <p style="color: #555; font-size: 0.9em; line-height: 1.8; margin: 0;">
+                    Monday – Friday: 10am – 7pm IST<br>
+                    Saturday: 10am – 5pm IST<br>
+                    Sunday: Closed
+                </p>
+            </div>
+
+        </div>
+    </div>
+</main>
+{% endblock %}

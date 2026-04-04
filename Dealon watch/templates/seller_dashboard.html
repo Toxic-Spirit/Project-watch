@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="dashboard-container">
+    <h1 class="dashboard-header">💰 Seller Panel</h1>
+    <p class="welcome-message">Welcome, {{ session.username }}. Manage your watch listings here.</p>
+
+    <div class="seller-actions mb-4">
+        <h2 style="font-family: var(--font-display); font-weight: 400; margin-bottom: 10px;">Product Management</h2>
+        <ul>
+            <li><a href="{{ url_for('add_product') }}" class="btn btn-primary-gold">➕ Add New Timepiece</a></li>
+        </ul>
+    </div>
+
+    <hr>
+
+    <div class="seller-listings">
+        <h2 style="font-family: var(--font-display); font-weight: 400; margin-bottom: 12px;">Your Active Listings ({{ products|length }})</h2>
+
+        {% if products %}
+            <table class="product-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Max Qty</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr>
+                        <td>{{ product.product_id }}</td>
+                        <td>{{ product.name }}</td>
+                        <td>₹{{ "%.2f"|format(product.price | float) }}</td>
+                        <td>{{ product.stock }}</td>
+                        <td>{{ product.max_purchase_qty }}</td>
+                        <td>
+                            <a href="{{ url_for('edit_product', product_id=product.product_id) }}">Edit</a> |
+                            <a href="{{ url_for('delete_product', product_id=product.product_id) }}"
+                               class="text-danger"
+                               onclick="return confirm('Are you sure you want to remove {{ product.name }}?');">Remove</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="text-info">You have no timepieces listed yet. Click "Add New Timepiece" to get started.</p>
+        {% endif %}
+    </div>
+</main>
+{% endblock %}

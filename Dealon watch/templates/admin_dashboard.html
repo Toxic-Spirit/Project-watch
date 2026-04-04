@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="dashboard-container">
+    <h1 class="dashboard-header">👑 Admin Control Panel</h1>
+    <p class="welcome-message">Welcome, {{ session.username }}. You have full authority over the DeaLon Watches platform.</p>
+
+    <div class="admin-actions">
+        <h2 style="font-family: var(--font-display); font-weight: 400; margin-bottom: 10px;">Key Actions</h2>
+        <ul>
+            <li><a href="#product-list" class="btn btn-primary-gold" style="margin-bottom:6px;">Manage All Listings</a></li>
+        </ul>
+    </div>
+
+    <hr>
+
+    <div class="admin-product-management" id="product-list">
+        <h2 style="font-family: var(--font-display); font-weight: 400; margin-bottom: 14px;">All Timepieces on Platform (Total: {{ products | length }})</h2>
+
+        {% if products %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Seller ID</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr>
+                        <td>{{ product.product_id }}</td>
+                        <td>{{ product.name }}</td>
+                        <td>₹{{ "%.2f"|format(product.price | float) }}</td>
+                        <td>{{ product.stock }}</td>
+                        <td>{{ product.seller_id }}</td>
+                        <td>
+                            <a href="{{ url_for('admin_delete_product', product_id=product.product_id) }}"
+                               onclick="return confirm('ADMIN: Permanently delete \'{{ product.name }}\'?')"
+                               class="btn btn-danger">Delete</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="text-info">No timepieces are currently listed on the platform.</p>
+        {% endif %}
+    </div>
+</main>
+{% endblock %}

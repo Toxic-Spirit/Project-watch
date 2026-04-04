@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="product-detail-container">
+    <div class="product-gallery">
+        {% set main_image = product.images | selectattr('is_main') | first %}
+        <img src="{{ main_image.image_url if main_image else '/static/product_images/placeholder.jpg' }}"
+             alt="{{ product.name }}" class="main-product-image">
+    </div>
+
+    <div class="product-info-buy">
+        <h2>{{ product.brand }}</h2>
+        <h1>{{ product.name }}</h1>
+        <p class="product-price-large">₹{{ "%.2f"|format(product.price | float) }}</p>
+
+        <p class="product-description">{{ product.description }}</p>
+
+        <p class="stock-info">
+            {% if product.stock > 0 %}
+                <span class="in-stock">In Stock</span> (Limit {{ product.max_purchase_qty }} per customer)
+            {% else %}
+                <span class="out-of-stock">Out of Stock</span>
+            {% endif %}
+        </p>
+
+        {% if product.stock > 0 %}
+        <form action="{{ url_for('add_to_cart', product_id=product.product_id) }}" method="POST">
+            <div class="form-group-row">
+                <div class="form-group">
+                    <label for="quantity">Quantity:</label>
+                    <input type="number" name="quantity" id="quantity" value="1" min="1" max="{{ product.max_purchase_qty }}"
+       oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 2);"
+       style="width: 65px;">
+                </div>
+                <button type="submit" class="btn btn-primary-gold">Add to Cart</button>
+            </div>
+        </form>
+        {% endif %}
+    </div>
+</main>
+
+<section class="reviews-section container">
+    <h2 style="font-family: var(--font-display); font-weight: 400; color: var(--color-navy); margin-top: 30px;">Customer Reviews</h2>
+    {% if reviews %}
+        {% for review in reviews %}
+        <div style="padding: 16px 0; border-bottom: 1px solid #eee;">
+            <strong>Rating: {{ review.rating }}/5</strong>
+            <p>{{ review.comment }}</p>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>No reviews posted yet.</p>
+    {% endif %}
+</section>
+{% endblock %}

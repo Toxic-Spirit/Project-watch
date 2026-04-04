@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main>
+    <h1 class="category-page-header">{{ category_name }}</h1>
+    <p class="category-page-subtitle">Explore the Collection</p>
+
+    <section class="product-grid">
+        {% if products_with_images %}
+            {% for item in products_with_images %}
+                <div class="product-card">
+                    <a href="{{ url_for('product_detail', product_id=item.product.product_id) }}">
+                        <img src="{{ item.image_url }}" alt="{{ item.product.name }}" class="product-image">
+                    </a>
+                    <div class="product-info">
+                        <h4>{{ item.product.name }}</h4>
+                        <p class="product-price">₹{{ "%.2f"|format(item.product.price | float) }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-info">No timepieces found in this collection yet.</p>
+        {% endif %}
+    </section>
+</main>
+{% endblock %}
