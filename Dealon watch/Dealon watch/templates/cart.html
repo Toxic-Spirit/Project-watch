@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="cart-container">
+    <h1>🛒 Your Shopping Cart</h1>
+
+    {% if cart_items %}
+        <table class="cart-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th>Remove</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item_data in cart_items %}
+                <tr>
+                    <td>
+                        {{ item_data.product.name }}
+                        {% if item_data.product.stock == 0 %}
+                            <span style="color: red; font-size: 0.8em; font-weight: bold; display: block;">⚠ Out of Stock — please remove this item</span>
+                        {% elif item_data.product.stock < item_data.item.quantity %}
+                            <span style="color: orange; font-size: 0.8em; font-weight: bold; display: block;">⚠ Only {{ item_data.product.stock }} left in stock</span>
+                        {% endif %}
+                    </td>
+                    <td>₹{{ "%.2f"|format(item_data.product.price | float) }}</td>
+                    <td>{{ item_data.item.quantity }}</td>
+                    <td>₹{{ "%.2f"|format(item_data.item_total | float) }}</td>
+                    <td>
+                        <a href="{{ url_for('remove_from_cart', product_id=item_data.product.product_id) }}" class="btn-remove">X</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="cart-summary">
+            <h2>Total Price: ₹{{ "%.2f"|format(total_price | float) }}</h2>
+            <a href="{{ url_for('checkout') }}" class="btn btn-primary-gold">Proceed to Checkout</a>
+        </div>
+
+    {% else %}
+        <p class="text-info">Your cart is empty. Start shopping now!</p>
+        <a href="{{ url_for('index') }}" class="btn btn-primary-gold">Continue Shopping</a>
+    {% endif %}
+</main>
+{% endblock %}

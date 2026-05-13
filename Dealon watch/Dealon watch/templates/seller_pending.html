@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="login-container" style="max-width: 500px; text-align: center;">
+    <div style="font-size: 3em; margin-bottom: 16px;">⏳</div>
+    <h2 class="login-header" style="color: var(--color-navy);">Approval Pending</h2>
+
+    <div style="background: #fff8e1; border: 1px solid #f0c040; border-radius: 4px; padding: 18px; margin-bottom: 20px;">
+        <p style="font-size: 0.92em; color: #7a5a00; line-height: 1.7;">
+            Your seller account is currently under review by our admin team. You will be able to login once your account is approved.
+        </p>
+    </div>
+
+    <p style="font-size: 0.88em; color: #888; margin-bottom: 20px; line-height: 1.6;">
+        This usually takes 1-2 business days. Please check back later. If you have questions, contact us at <strong>sellers@dealon.com</strong>
+    </p>
+
+    <a href="{{ url_for('index') }}" class="btn btn-primary-gold" style="display: inline-block;">
+        Back to Home
+    </a>
+</div>
+{% endblock %}

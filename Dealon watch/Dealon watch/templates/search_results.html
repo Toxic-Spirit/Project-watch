@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main>
+    <div class="filter-panel">
+        <h3 class="section-heading">Refine Results</h3>
+        
+        <form action="{{ url_for('search') }}" method="GET" class="filter-form">
+            <input type="hidden" name="q" value="{{ query }}">
+            
+            <div class="filter-group-row">
+                <div class="filter-group">
+                    <label for="min_price">Min Price (₹):</label>
+                    <input type="number" name="min_price" id="min_price" step="1000" 
+                           value="{{ current_min_price if current_min_price else '' }}">
+                </div>
+                
+                <div class="filter-group">
+                    <label for="max_price">Max Price (₹):</label>
+                    <input type="number" name="max_price" id="max_price" step="1000" 
+                           value="{{ current_max_price if current_max_price else '' }}">
+                </div>
+
+                <div class="filter-group">
+                    <label for="brand">Brand:</label>
+                    <select name="brand" id="brand">
+                        <option value="">All Brands</option>
+                        {% for brand in available_brands %}
+                            <option value="{{ brand }}" {% if current_brand == brand %}selected{% endif %}>
+                                {{ brand }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-submit-gold">Apply Filters</button>
+        </form>
+    </div>
+    <hr>
+    
+    <h2 class="section-heading">Search Results for "{{ query }}"</h2>
+    <p class="text-info">Found {{ products_with_images|length }} matching products.</p>
+
+    <section class="product-grid">
+        {% if products_with_images %}
+            {% for item in products_with_images %}
+                <div class="product-card">
+                    <a href="{{ url_for('product_detail', product_id=item.product.product_id) }}">
+                        <img src="{{ item.image_url }}" alt="{{ item.product.name }}" class="product-image">
+                    </a>
+                    <div class="product-info">
+                        <h3>{{ item.product.name }}</h3>
+                        <p class="product-price">₹{{ "%.2f"|format(item.product.price | float) }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No products matched your search. Please try again.</p>
+        {% endif %}
+    </section>
+</main>
+{% endblock %}

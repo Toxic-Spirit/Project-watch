@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="dashboard-container">
+    <h1 class="dashboard-header">💰 Seller Dashboard</h1>
+    <p class="welcome-message">
+        Welcome, {{ session.username }}.
+        <span style="display:inline-block; background:#2d8a47; color:white; font-size:0.72em; padding:4px 12px; border-radius:12px; font-weight:600; letter-spacing:0.08em; margin-left:8px; vertical-align:middle;">
+            ✅ VERIFIED SELLER
+        </span>
+    </p>
+
+    <!-- Tab Navigation -->
+    <div style="display:flex; gap:0; margin-bottom:25px; border-bottom:2px solid var(--color-gold);">
+        <button onclick="showTab('analytics')" id="tab-analytics"
+                style="padding:10px 22px; background:var(--color-navy); color:var(--color-gold); border:none; font-size:0.82em; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; cursor:pointer; border-radius:3px 3px 0 0; margin-right:4px;">
+            📊 Sales Analytics
+        </button>
+        <button onclick="showTab('orders')" id="tab-orders"
+                style="padding:10px 22px; background:#ddd; color:#555; border:none; font-size:0.82em; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; cursor:pointer; border-radius:3px 3px 0 0; margin-right:4px;">
+            📋 Manage Orders
+        </button>
+        <button onclick="showTab('listings')" id="tab-listings"
+                style="padding:10px 22px; background:#ddd; color:#555; border:none; font-size:0.82em; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; cursor:pointer; border-radius:3px 3px 0 0;">
+            📦 My Listings
+        </button>
+    </div>
+
+    <!-- ═══ ANALYTICS TAB ═══ -->
+    <div id="section-analytics">
+
+        <!-- Summary Cards -->
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-bottom:28px;">
+            <div style="background:var(--color-navy); border-radius:4px; padding:22px; border-left:4px solid var(--color-gold);">
+                <p style="font-size:0.72em; color:var(--color-gold); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:8px;">Total Revenue</p>
+                <p style="font-size:1.8em; font-weight:700; color:white; margin:0;">₹{{ "%.2f"|format(total_revenue) }}</p>
+            </div>
+            <div style="background:var(--color-navy); border-radius:4px; padding:22px; border-left:4px solid #2d8a47;">
+                <p style="font-size:0.72em; color:#6fcf97; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:8px;">Your Earnings (80%)</p>
+                <p style="font-size:1.8em; font-weight:700; color:white; margin:0;">₹{{ "%.2f"|format(seller_earnings) }}</p>
+            </div>
+            <div style="background:var(--color-navy); border-radius:4px; padding:22px; border-left:4px solid #e74c3c;">
+                <p style="font-size:0.72em; color:#ff7675; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:8px;">Platform Fee (20%)</p>
+                <p style="font-size:1.8em; font-weight:700; color:white; margin:0;">₹{{ "%.2f"|format(admin_commission) }}</p>
+            </div>
+            <div style="background:var(--color-navy); border-radius:4px; padding:22px; border-left:4px solid #e0ddd6;">
+                <p style="font-size:0.72em; color:#ccc; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:8px;">Total Items Sold</p>
+                <p style="font-size:1.8em; font-weight:700; color:white; margin:0;">{{ total_sold }}</p>
+            </div>
+        </div>
+
+        <!-- Commission Info -->
+        <div style="background:#fff8e1; border:1px solid #f0c040; border-left:4px solid #f0a500; border-radius:3px; padding:14px 18px; margin-bottom:24px;">
+            <p style="margin:0; font-size:0.88em; color:#7a5a00; line-height:1.6;">
+                ℹ️ <strong>Commission Structure:</strong> DeaLon charges a 20% platform fee on every sale. You receive <strong>80%</strong> of each transaction.
+            </p>
+        </div>
+
+        <!-- Sales by Product -->
+        <h2 style="font-family:'Times New Roman',serif; font-weight:400; color:var(--color-navy); margin-bottom:14px;">Sales by Timepiece</h2>
+        {% if product_sales %}
+        <table class="data-table" style="margin-bottom:30px;">
+            <thead>
+                <tr>
+                    <th>Watch Name</th>
+                    <th>Brand</th>
+                    <th>Units Sold</th>
+                    <th>Price/Unit</th>
+                    <th>Total Revenue</th>
+                    <th>Your Earning (80%)</th>
+                    <th>Platform Fee (20%)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in product_sales %}
+                <tr>
+                    <td><strong>{{ row.name }}</strong></td>
+                    <td style="font-size:0.85em; color:#666;">{{ row.brand or '—' }}</td>
+                    <td style="text-align:center;">
+                        <span style="background:var(--color-navy); color:var(--color-gold); padding:2px 10px; border-radius:10px; font-size:0.82em; font-weight:bold;">{{ row.units_sold }}</span>
+                    </td>
+                    <td>₹{{ "%.2f"|format(row.unit_price) }}</td>
+                    <td style="font-weight:600; color:var(--color-navy);">₹{{ "%.2f"|format(row.total_revenue) }}</td>
+                    <td style="font-weight:600; color:#2d8a47;">₹{{ "%.2f"|format(row.seller_cut) }}</td>
+                    <td style="font-weight:600; color:#e74c3c;">₹{{ "%.2f"|format(row.admin_cut) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-info">No sales recorded yet. Add products and start selling!</p>
+        {% endif %}
+    </div>
+
+    <!-- ═══ MANAGE ORDERS TAB ═══ -->
+    <div id="section-orders" style="display:none;">
+
+        <h2 style="font-family:'Times New Roman',serif; font-weight:400; color:var(--color-navy); margin-bottom:6px;">Orders Containing Your Products</h2>
+        <p style="font-size:0.85em; color:#888; margin-bottom:20px;">Click the status buttons to update an order's progress. Cancelled orders cannot be updated.</p>
+
+        {% if seller_orders %}
+        <div style="display:flex; flex-direction:column; gap:16px;">
+            {% for o in seller_orders %}
+            <div style="background:#fff; border:1px solid #e0ddd6; border-radius:4px; padding:20px;">
+
+                <!-- Order Header -->
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid #f0ede6;">
+                    <div>
+                        <h3 style="color:var(--color-navy); margin:0; font-size:1em;">Order #{{ o.order_id }}</h3>
+                        <p style="color:#888; font-size:0.82em; margin:3px 0 0;">{{ o.order_date.strftime('%d %B %Y, %I:%M %p') }} &nbsp;|&nbsp; {{ o.product_name }} × {{ o.quantity }}</p>
+                    </div>
+                    <div style="text-align:right;">
+                        <p style="font-weight:700; color:var(--color-navy); margin:0;">₹{{ "%.2f"|format(o.line_total) }}</p>
+                        <p style="font-size:0.78em; color:#888; margin:3px 0 0;">Your cut: <strong style="color:#2d8a47;">₹{{ "%.2f"|format(o.line_total * 0.80) }}</strong></p>
+                    </div>
+                </div>
+
+                <!-- Current Status -->
+                <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+                    <span style="font-size:0.78em; color:#888; text-transform:uppercase; letter-spacing:0.08em;">Current Status:</span>
+                    <span style="padding:4px 14px; border-radius:12px; font-size:0.82em; font-weight:600;
+                        background:{% if o.status=='Delivered' %}#d4edda{% elif o.status=='Cancelled' %}#f8d7da{% elif o.status=='Shipped' or o.status=='Out for Delivery' %}#cce5ff{% elif o.status=='Preparing' %}#fff3cd{% else %}#e8f4f8{% endif %};
+                        color:{% if o.status=='Delivered' %}#155724{% elif o.status=='Cancelled' %}#721c24{% elif o.status=='Shipped' or o.status=='Out for Delivery' %}#004085{% elif o.status=='Preparing' %}#856404{% else %}#0c5460{% endif %};">
+                        {{ o.status }}
+                    </span>
+                </div>
+
+                <!-- Status Update Buttons -->
+                {% if o.status != 'Cancelled' and o.status != 'Delivered' %}
+                <div>
+                    <p style="font-size:0.75em; color:#888; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px;">Update Status:</p>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+
+                        {% set statuses = [
+                            ('Confirmed',        '📋', '#0c5460', '#e8f4f8'),
+                            ('Preparing',        '📦', '#856404', '#fff3cd'),
+                            ('Shipped',          '🚚', '#004085', '#cce5ff'),
+                            ('Out for Delivery', '🏍', '#4a235a', '#e8daef'),
+                            ('Delivered',        '🎁', '#155724', '#d4edda'),
+                        ] %}
+
+                        {% for status_val, icon, txtcolor, bgcolor in statuses %}
+                        {% if status_val != o.status %}
+                        <form action="{{ url_for('update_order_status', order_id=o.order_id) }}" method="POST" style="display:inline;">
+                            <input type="hidden" name="status" value="{{ status_val }}">
+                            <button type="submit"
+                                    style="background:{{ bgcolor }}; color:{{ txtcolor }}; border:1px solid {{ txtcolor }}30; padding:7px 14px; border-radius:20px; font-size:0.8em; font-weight:600; cursor:pointer; transition:all 0.2s;"
+                                    onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                                {{ icon }} {{ status_val }}
+                            </button>
+                        </form>
+                        {% else %}
+                        <!-- Current status shown as active pill -->
+                        <span style="background:var(--color-navy); color:var(--color-gold); border:1px solid var(--color-gold); padding:7px 14px; border-radius:20px; font-size:0.8em; font-weight:600;">
+                            {{ icon }} {{ status_val }} ✓
+                        </span>
+                        {% endif %}
+                        {% endfor %}
+
+                    </div>
+                </div>
+                {% elif o.status == 'Delivered' %}
+                <p style="font-size:0.85em; color:#155724; font-style:italic;">🎁 This order has been delivered.</p>
+                {% elif o.status == 'Cancelled' %}
+                <p style="font-size:0.85em; color:#721c24; font-style:italic;">❌ This order was cancelled and cannot be updated.</p>
+                {% endif %}
+
+            </div>
+            {% endfor %}
+        </div>
+
+        {% else %}
+        <p class="text-info">No orders yet for your products.</p>
+        {% endif %}
+    </div>
+
+    <!-- ═══ LISTINGS TAB ═══ -->
+    <div id="section-listings" style="display:none;">
+        <div style="margin-bottom:16px;">
+            <a href="{{ url_for('add_product') }}" class="btn btn-primary-gold">➕ Add New Timepiece</a>
+        </div>
+
+        <h2 style="font-family:'Times New Roman',serif; font-weight:400; color:var(--color-navy); margin-bottom:14px;">
+            Your Active Listings ({{ products|length }})
+        </h2>
+
+        {% if products %}
+        <table class="product-table">
+            <thead>
+                <tr>
+                    <th>ID</th><th>Name</th><th>Price</th><th>Stock</th><th>Max Qty</th><th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>{{ product.product_id }}</td>
+                    <td>{{ product.name }}</td>
+                    <td>₹{{ "%.2f"|format(product.price|float) }}</td>
+                    <td>
+                        {% if product.stock == 0 %}
+                            <span style="color:red; font-weight:bold;">Out of Stock</span>
+                        {% else %}
+                            {{ product.stock }}
+                        {% endif %}
+                    </td>
+                    <td>{{ product.max_purchase_qty }}</td>
+                    <td>
+                        <a href="{{ url_for('edit_product', product_id=product.product_id) }}">Edit</a> |
+                        <a href="{{ url_for('delete_product', product_id=product.product_id) }}"
+                           class="text-danger"
+                           onclick="return confirm('Remove {{ product.name }}?');">Remove</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-info">No products listed yet. Click "Add New Timepiece" to start.</p>
+        {% endif %}
+    </div>
+
+</main>
+
+<script>
+function showTab(tab) {
+    ['analytics','orders','listings'].forEach(function(t) {
+        document.getElementById('section-' + t).style.display = t === tab ? 'block' : 'none';
+        var btn = document.getElementById('tab-' + t);
+        btn.style.background = t === tab ? 'var(--color-navy)' : '#ddd';
+        btn.style.color      = t === tab ? 'var(--color-gold)' : '#555';
+    });
+}
+</script>
+{% endblock %}

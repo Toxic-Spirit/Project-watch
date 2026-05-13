@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <h1 class="form-header">➕ Add New Product Listing</h1>
+
+    <form method="POST" action="{{ url_for('add_product') }}" enctype="multipart/form-data" class="product-form">
+
+        <div class="form-group">
+            <label for="name">Product Name:</label>
+            <input type="text" id="name" name="name" required maxlength="255">
+        </div>
+
+        <div class="form-group">
+            <label for="brand">Brand:</label>
+            <input type="text" id="brand" name="brand" required maxlength="100">
+        </div>
+
+        <div class="form-group-row">
+            <div class="form-group half-width">
+                <label for="price">Price (₹):</label>
+                <!-- Price: max 9 digits (up to 999,999,999) -->
+                <input type="number" id="price" name="price"
+                       step="0.01" min="0" max="999999999"
+                       oninput="if(this.value.replace('.','').replace('-','').length > 9) this.value = this.value.slice(0, 9);"
+                       required>
+                <small style="color: #888; font-size: 0.78em;">Max: ₹999,999,999</small>
+            </div>
+            <div class="form-group half-width">
+                <label for="stock">Stock Quantity:</label>
+                <!-- Stock: max 5 digits (up to 99,999) -->
+                <input type="number" id="stock" name="stock"
+                       min="0" max="99999"
+                       oninput="if(this.value.length > 5) this.value = this.value.slice(0, 5);"
+                       required>
+                <small style="color: #888; font-size: 0.78em;">Max: 99,999 units</small>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="category">Category:</label>
+            <select id="category" name="category" required>
+                <option value="">-- Select Category --</option>
+                {% for category in categories %}
+                    <option value="{{ category.category_id }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" rows="5" required></textarea>
+        </div>
+
+        <div class="form-group image-upload-group">
+            <label for="images">Product Images:</label>
+            <input type="file" id="images" name="images" accept="image/*" required>
+            <p class="limit-note">First image selected will be set as the main thumbnail.</p>
+        </div>
+
+        <button type="submit" class="btn btn-submit-gold">Submit Listing</button>
+    </form>
+</div>
+{% endblock %}

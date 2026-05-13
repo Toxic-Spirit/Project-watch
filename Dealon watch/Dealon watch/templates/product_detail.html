@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="product-detail-container">
+    <div class="product-gallery">
+        {% set main_image = product.images | selectattr('is_main') | first %}
+        <img src="{{ main_image.image_url if main_image else '/static/product_images/placeholder.jpg' }}"
+             alt="{{ product.name }}" class="main-product-image">
+    </div>
+
+    <div class="product-info-buy">
+        <h2>{{ product.brand }}</h2>
+        <h1>{{ product.name }}</h1>
+        <p class="product-price-large">₹{{ "%.2f"|format(product.price | float) }}</p>
+
+        <p class="product-description">{{ product.description }}</p>
+
+        <p class="stock-info">
+    {% if product.stock > 0 %}
+        <span class="in-stock">In Stock</span> (Limit {{ product.max_purchase_qty }} per customer)
+    {% else %}
+        <span class="out-of-stock">Out of Stock</span>
+    {% endif %}
+</p>
+
+<div style="margin-bottom:18px;">
+    <span style="display:inline-flex; align-items:center; gap:6px; background:#f0f7f2; border:1px solid #c3e6cb; color:#155724; font-size:0.82em; padding:5px 14px; border-radius:12px; font-weight:600; letter-spacing:0.05em;">
+        ✅ Verified Seller
+    </span>
+</div>
+
+        {% if product.stock > 0 %}
+        <form action="{{ url_for('add_to_cart', product_id=product.product_id) }}" method="POST">
+            <div class="form-group-row">
+                <div class="form-group">
+                    <label for="quantity">Quantity:</label>
+                    <input type="number" name="quantity" id="quantity" value="1" min="1"
+                           max="{{ product.max_purchase_qty }}"
+                           oninput="this.value = this.value.replace(/[^0-9]/g,'').slice(0,2);"
+                           style="width:65px;">
+                </div>
+                <button type="submit" class="btn btn-primary-gold">Add to Cart</button>
+            </div>
+        </form>
+        <a href="{{ url_for('buy_now', product_id=product.product_id) }}" 
+   class="btn btn-primary-gold" 
+   style="display:inline-block; margin-top:10px; background:var(--color-navy); color:var(--color-gold); border:1px solid var(--color-gold);">
+   ⚡ Buy Now
+</a>
+        {% endif %}
+
+        <!-- Average Rating Display -->
+        {% if reviews %}
+        <div style="margin-top:20px; padding:14px 18px; background:#faf8f3; border:1px solid #e0ddd6; border-radius:3px;">
+            {% set avg = (reviews | sum(attribute='rating')) / (reviews | length) %}
+            <p style="font-size:0.8em; color:#888; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px;">Customer Rating</p>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span style="font-size:1.6em; font-weight:700; color:var(--color-navy);">{{ "%.1f"|format(avg) }}</span>
+                <div>
+                    {% for i in range(1,6) %}
+                        <span style="font-size:1.2em; color:{% if i <= avg|round %}#f0a500{% else %}#ddd{% endif %};">★</span>
+                    {% endfor %}
+                </div>
+                <span style="font-size:0.85em; color:#888;">({{ reviews|length }} review{{ 's' if reviews|length != 1 }})</span>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</main>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- REVIEWS SECTION                                         -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section class="container" style="margin-top:40px; max-width:900px;">
+
+    <h2 style="font-family:'Times New Roman',serif; font-weight:400; color:var(--color-navy); font-size:1.8em; margin-bottom:6px;">
+        Customer Reviews
+    </h2>
+    <div style="width:60px; height:2px; background:var(--color-gold); margin-bottom:24px;"></div>
+
+    <!-- Existing Reviews -->
+    {% if reviews %}
+        {% for review in reviews %}
+        <div style="background:#fff; border:1px solid #e0ddd6; border-radius:3px; padding:20px; margin-bottom:16px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+                <div>
+                    <!-- Star display -->
+                    <div style="margin-bottom:4px;">
+                        {% for i in range(1,6) %}
+                            <span style="font-size:1.1em; color:{% if i <= review.rating %}#f0a500{% else %}#ddd{% endif %};">★</span>
+                        {% endfor %}
+                        <span style="font-size:0.82em; font-weight:600; color:var(--color-navy); margin-left:6px;">{{ review.rating }}/5</span>
+                    </div>
+                    <p style="font-size:0.82em; color:#888;">{{ review.date_posted.strftime('%d %B %Y') }}</p>
+                </div>
+                <span style="background:var(--color-navy); color:var(--color-gold); font-size:0.72em; padding:3px 10px; border-radius:10px; font-weight:600; letter-spacing:0.05em;">
+                    Verified Customer
+                </span>
+            </div>
+            {% if review.comment %}
+            <p style="font-size:0.95em; color:#444; line-height:1.7; margin:0;">{{ review.comment }}</p>
+            {% else %}
+            <p style="font-size:0.88em; color:#aaa; font-style:italic;">No written review.</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <div style="background:#fff; border:1px solid #e0ddd6; border-radius:3px; padding:30px; text-align:center; margin-bottom:24px;">
+            <p style="color:#888; font-size:0.95em;">No reviews yet. Be the first to review this timepiece!</p>
+        </div>
+    {% endif %}
+
+    <!-- ── Leave a Review Form ── -->
+    {% if 'user_id' in session and session.get('user_type') == 'Customer' %}
+
+        {% if already_reviewed %}
+        <div style="background:#f0f7f2; border:1px solid #c3e6cb; border-left:4px solid #2d8a47; border-radius:3px; padding:16px; margin-top:10px;">
+            <p style="color:#155724; font-size:0.92em; margin:0;">✅ You have already submitted a review for this product. Thank you for your feedback!</p>
+        </div>
+        {% else %}
+        <div style="background:#fff; border:1px solid #e0ddd6; border-radius:3px; padding:28px; margin-top:10px;">
+            <h3 style="font-family:'Times New Roman',serif; font-weight:400; color:var(--color-navy); font-size:1.3em; margin-bottom:18px;">
+                Leave a Review
+            </h3>
+
+            <form action="{{ url_for('submit_review', product_id=product.product_id) }}" method="POST">
+
+                <!-- Star Rating Picker -->
+                <div style="margin-bottom:20px;">
+                    <label style="display:block; font-size:0.75em; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--color-navy); margin-bottom:8px;">
+                        Your Rating *
+                    </label>
+                    <div class="star-rating" style="display:flex; gap:6px; flex-direction:row-reverse; justify-content:flex-end;">
+                        {% for i in [5,4,3,2,1] %}
+                        <label for="star{{ i }}" style="cursor:pointer; font-size:2em; color:#ddd; transition:color 0.15s;" 
+                               onmouseover="highlightStars({{ i }})" onmouseout="resetStars()">★</label>
+                        <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}" required
+                               style="display:none;" onchange="selectStar({{ i }})">
+                        {% endfor %}
+                    </div>
+                    <p id="rating-label" style="font-size:0.82em; color:#888; margin-top:6px;">Click a star to rate</p>
+                </div>
+
+                <!-- Comment -->
+                <div style="margin-bottom:20px;">
+                    <label for="comment" style="display:block; font-size:0.75em; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--color-navy); margin-bottom:8px;">
+                        Your Review (optional)
+                    </label>
+                    <textarea id="comment" name="comment" rows="4" maxlength="1000"
+                              placeholder="Share your experience with this timepiece..."
+                              style="width:100%; padding:12px 14px; border:1px solid #d0ccbf; border-radius:3px; font-size:0.95em; font-family:Arial,sans-serif; resize:vertical; background:#faf8f3;"></textarea>
+                    <p style="font-size:0.75em; color:#aaa; margin-top:4px;">Maximum 1000 characters</p>
+                </div>
+
+                <button type="submit" class="btn btn-primary-gold" style="padding:11px 28px; font-size:0.85em; letter-spacing:0.1em; text-transform:uppercase;">
+                    Submit Review
+                </button>
+            </form>
+        </div>
+        {% endif %}
+
+    {% elif 'user_id' not in session %}
+        <div style="background:#faf8f3; border:1px solid #e0ddd6; border-radius:3px; padding:20px; text-align:center; margin-top:10px;">
+            <p style="color:#555; font-size:0.92em; margin-bottom:12px;">Please log in to leave a review.</p>
+            <a href="{{ url_for('login', user_role='customer') }}" class="btn btn-primary-gold" style="font-size:0.82em; padding:8px 22px;">
+                Login to Review
+            </a>
+        </div>
+    {% endif %}
+
+</section>
+
+<script>
+const ratingLabels = {1:'Poor',2:'Fair',3:'Good',4:'Very Good',5:'Excellent'};
+let selectedRating = 0;
+
+function highlightStars(n) {
+    const labels = document.querySelectorAll('.star-rating label');
+    labels.forEach(function(label, i) {
+        // labels are reversed (5,4,3,2,1), index 0 = star5
+        const starVal = 5 - i;
+        label.style.color = starVal <= n ? '#f0a500' : '#ddd';
+    });
+}
+
+function resetStars() {
+    if (selectedRating === 0) {
+        highlightStars(0);
+    } else {
+        highlightStars(selectedRating);
+    }
+}
+
+function selectStar(n) {
+    selectedRating = n;
+    highlightStars(n);
+    document.getElementById('rating-label').textContent = ratingLabels[n] + ' (' + n + '/5)';
+    document.getElementById('rating-label').style.color = '#f0a500';
+}
+</script>
+{% endblock %}

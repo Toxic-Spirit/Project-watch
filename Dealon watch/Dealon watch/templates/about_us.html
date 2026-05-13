@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+<main class="container" style="max-width: 800px; margin: 40px auto;">
+
+    <h1 style="font-family: 'Times New Roman', serif; font-weight: 400; color: var(--color-navy); font-size: 2.4em; margin-bottom: 5px;">About DeaLon</h1>
+    <p style="color: var(--color-gold); letter-spacing: 0.12em; font-size: 0.8em; text-transform: uppercase; margin-bottom: 35px;">The Art of Horology</p>
+
+    <!-- Hero Statement -->
+    <div style="background: var(--color-navy); padding: 40px; border-radius: 4px; margin-bottom: 30px; text-align: center;">
+        <p style="color: var(--color-gold); font-family: 'Times New Roman', serif; font-size: 1.6em; font-weight: 300; line-height: 1.6; margin: 0; font-style: italic;">
+            "Time is the most precious luxury. We exist to help you wear it beautifully."
+        </p>
+    </div>
+
+    <!-- Our Story -->
+    <div style="background: #fff; border: 1px solid #e0ddd6; border-radius: 4px; padding: 30px; margin-bottom: 25px;">
+        <h2 style="font-family: 'Times New Roman', serif; font-weight: 400; color: var(--color-navy); font-size: 1.6em; margin-bottom: 15px;">Our Story</h2>
+        <p style="color: #555; font-size: 0.95em; line-height: 1.9; margin-bottom: 15px;">
+            DeaLon was founded in 2025 with a single vision — to create India's most trusted destination for luxury timepieces. We believe that a great watch is more than an accessory; it is a statement of character, craftsmanship, and legacy.
+        </p>
+        <p style="color: #555; font-size: 0.95em; line-height: 1.9;">
+            From the iconic Submariner of Rolex to the gravity-defying complications of Richard Mille, every piece in our collection is hand-selected by our team of horological experts. We partner directly with authorised dealers and certified sellers to guarantee authenticity on every single purchase.
+        </p>
+    </div>
+
+    <!-- Values -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">
+        <div style="background: #fff; border: 1px solid #e0ddd6; border-radius: 4px; padding: 25px;">
+            <div style="font-size: 1.8em; margin-bottom: 10px;">🔍</div>
+            <h3 style="color: var(--color-navy); font-size: 1em; margin-bottom: 8px;">Authenticity First</h3>
+            <p style="color: #555; font-size: 0.88em; line-height: 1.7;">Every timepiece is verified by certified experts before listing. We guarantee 100% authentic watches, always.</p>
+        </div>
+        <div style="background: #fff; border: 1px solid #e0ddd6; border-radius: 4px; padding: 25px;">
+            <div style="font-size: 1.8em; margin-bottom: 10px;">🛡️</div>
+            <h3 style="color: var(--color-navy); font-size: 1em; margin-bottom: 8px;">Buyer Protection</h3>
+            <p style="color: #555; font-size: 0.88em; line-height: 1.7;">Shop with confidence. Our buyer protection covers every order from the moment you checkout to the moment it arrives.</p>
+        </div>
+        <div style="background: #fff; border: 1px solid #e0ddd6; border-radius: 4px; padding: 25px;">
+            <div style="font-size: 1.8em; margin-bottom: 10px;">🤝</div>
+            <h3 style="color: var(--color-navy); font-size: 1em; margin-bottom: 8px;">Trusted Sellers</h3>
+            <p style="color: #555; font-size: 0.88em; line-height: 1.7;">All sellers on DeaLon are vetted, verified, and held to the highest standards of quality and transparency.</p>
+        </div>
+        <div style="background: #fff; border: 1px solid #e0ddd6; border-radius: 4px; padding: 25px;">
+            <div style="font-size: 1.8em; margin-bottom: 10px;">👑</div>
+            <h3 style="color: var(--color-navy); font-size: 1em; margin-bottom: 8px;">Curated Collection</h3>
+            <p style="color: #555; font-size: 0.88em; line-height: 1.7;">We don't list everything — we list the best. Our curated selection spans the world's finest watchmakers.</p>
+        </div>
+    </div>
+
+    <!-- Brands -->
+    <div style="background: #fff; border: 1px solid #e0ddd6; border-radius: 4px; padding: 30px; text-align: center;">
+        <h2 style="font-family: 'Times New Roman', serif; font-weight: 400; color: var(--color-navy); font-size: 1.6em; margin-bottom: 20px;">Brands We Carry</h2>
+        <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap;">
+            {% for brand in ['Rolex', 'Jacob & Co', 'Richard Mille', 'Patek Philippe', 'Omega'] %}
+            <span style="color: var(--color-navy); font-family: 'Times New Roman', serif; font-size: 1.1em; letter-spacing: 1px; border-bottom: 1px solid var(--color-gold); padding-bottom: 3px;">{{ brand }}</span>
+            {% endfor %}
+        </div>
+    </div>
+
+</main>
+{% endblock %}

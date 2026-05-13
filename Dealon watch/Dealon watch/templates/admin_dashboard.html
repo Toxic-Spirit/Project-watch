@@ -1,0 +1,292 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="dashboard-container">
+    <h1 class="dashboard-header">👑 Admin Control Panel</h1>
+    <p class="welcome-message">Welcome, {{ session.username }}. Full platform control.</p>
+
+    <!-- Tab Navigation -->
+    <div style="display: flex; gap: 0; margin-bottom: 25px; border-bottom: 2px solid var(--color-gold);">
+        <button onclick="showTab('earnings')" id="tab-earnings"
+                style="padding:10px 22px; background:var(--color-navy); color:var(--color-gold); border:none; font-size:0.82em; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; cursor:pointer; border-radius:3px 3px 0 0; margin-right:4px;">
+            💰 Earnings
+        </button>
+        <button onclick="showTab('products')" id="tab-products"
+                style="padding:10px 22px; background:#ddd; color:#555; border:none; font-size:0.82em; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; cursor:pointer; border-radius:3px 3px 0 0; margin-right:4px;">
+            📦 Products
+        </button>
+        <button onclick="showTab('sellers')" id="tab-sellers"
+                style="padding:10px 22px; background:#ddd; color:#555; border:none; font-size:0.82em; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; cursor:pointer; border-radius:3px 3px 0 0; position:relative;">
+            👤 Seller Management
+            {% if pending_sellers %}
+            <span style="position:absolute; top:4px; right:6px; background:#cc0000; color:white; font-size:0.7em; border-radius:50%; width:18px; height:18px; display:flex; align-items:center; justify-content:center; font-weight:bold;">
+                {{ pending_sellers|length }}
+            </span>
+            {% endif %}
+        </button>
+    </div>
+
+    <!-- ═══ EARNINGS TAB ═══ -->
+    <div id="section-earnings">
+
+        <!-- Summary Cards -->
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-bottom:28px;">
+
+            <div style="background:var(--color-navy); border-radius:4px; padding:22px; border-left:4px solid var(--color-gold);">
+                <p style="font-size:0.72em; color:var(--color-gold); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:8px;">Total Platform Sales</p>
+                <p style="font-size:1.8em; font-weight:700; color:white; margin:0;">₹{{ "%.2f"|format(total_sales) }}</p>
+            </div>
+
+            <div style="background:var(--color-navy); border-radius:4px; padding:22px; border-left:4px solid #2d8a47;">
+                <p style="font-size:0.72em; color:#6fcf97; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:8px;">Admin Earnings (20%)</p>
+                <p style="font-size:1.8em; font-weight:700; color:white; margin:0;">₹{{ "%.2f"|format(admin_total) }}</p>
+            </div>
+
+            <div style="background:var(--color-navy); border-radius:4px; padding:22px; border-left:4px solid #2980b9;">
+                <p style="font-size:0.72em; color:#74b9ff; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:8px;">Seller Payouts (80%)</p>
+                <p style="font-size:1.8em; font-weight:700; color:white; margin:0;">₹{{ "%.2f"|format(seller_total) }}</p>
+            </div>
+
+            <div style="background:var(--color-navy); border-radius:4px; padding:22px; border-left:4px solid #e0ddd6;">
+                <p style="font-size:0.72em; color:#ccc; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:8px;">Total Orders</p>
+                <p style="font-size:1.8em; font-weight:700; color:white; margin:0;">{{ total_orders }}</p>
+            </div>
+
+        </div>
+
+        <!-- Earnings per Seller -->
+        <h2 style="font-family:'Times New Roman',serif; font-weight:400; color:var(--color-navy); margin-bottom:14px;">Earnings Breakdown by Seller</h2>
+
+        {% if seller_earnings %}
+        <table class="data-table" style="margin-bottom:30px;">
+            <thead>
+                <tr>
+                    <th>Seller</th>
+                    <th>Email</th>
+                    <th>Items Sold</th>
+                    <th>Total Sales</th>
+                    <th>Admin Share (20%)</th>
+                    <th>Seller Payout (80%)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in seller_earnings %}
+                <tr>
+                    <td><strong>{{ row.username }}</strong></td>
+                    <td style="font-size:0.85em; color:#666;">{{ row.email }}</td>
+                    <td style="text-align:center;">{{ row.items_sold }}</td>
+                    <td style="font-weight:600; color:var(--color-navy);">₹{{ "%.2f"|format(row.total_sales) }}</td>
+                    <td style="font-weight:600; color:#2d8a47;">₹{{ "%.2f"|format(row.admin_share) }}</td>
+                    <td style="font-weight:600; color:#2980b9;">₹{{ "%.2f"|format(row.seller_payout) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-info">No sales recorded yet.</p>
+        {% endif %}
+
+        <!-- Recent Orders -->
+        <h2 style="font-family:'Times New Roman',serif; font-weight:400; color:var(--color-navy); margin-bottom:14px;">Recent Orders</h2>
+        {% if recent_orders %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Date</th>
+                    <th>Payment</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                    <th>Admin (20%)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for o in recent_orders %}
+                <tr>
+                    <td>#{{ o.order_id }}</td>
+                    <td>{{ o.username }}</td>
+                    <td style="font-size:0.85em;">{{ o.order_date.strftime('%d %b %Y') }}</td>
+                    <td style="text-transform:uppercase; font-size:0.82em;">{{ o.payment_method or 'card' }}</td>
+                    <td>
+                        <span style="padding:2px 10px; border-radius:10px; font-size:0.78em; font-weight:600;
+                            background:{% if o.status=='Delivered' %}#d4edda{% elif o.status=='Cancelled' %}#f8d7da{% elif o.status=='Shipped' %}#cce5ff{% else %}#fff3cd{% endif %};
+                            color:{% if o.status=='Delivered' %}#155724{% elif o.status=='Cancelled' %}#721c24{% elif o.status=='Shipped' %}#004085{% else %}#856404{% endif %};">
+                            {{ o.status }}
+                        </span>
+                    </td>
+                    <td style="font-weight:600;">₹{{ "%.2f"|format(o.total|float) }}</td>
+                    <td style="font-weight:600; color:#2d8a47;">₹{{ "%.2f"|format(o.total|float * 0.20) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-info">No orders yet.</p>
+        {% endif %}
+    </div>
+
+    <!-- ═══ PRODUCTS TAB ═══ -->
+    <div id="section-products" style="display:none;">
+        <h2 style="font-family:'Times New Roman',serif; font-weight:400; color:var(--color-navy); margin-bottom:14px;">
+            All Timepieces ({{ products|length }})
+        </h2>
+        {% if products %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th><th>Name</th><th>Price</th><th>Stock</th><th>Seller ID</th><th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>{{ product.product_id }}</td>
+                    <td>{{ product.name }}</td>
+                    <td>₹{{ "%.2f"|format(product.price|float) }}</td>
+                    <td>{{ product.stock }}</td>
+                    <td>{{ product.seller_id }}</td>
+                    <td>
+                        <a href="{{ url_for('admin_delete_product', product_id=product.product_id) }}"
+                           onclick="return confirm('Delete \'{{ product.name }}\'?')"
+                           class="btn btn-danger">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-info">No products listed yet.</p>
+        {% endif %}
+    </div>
+
+    <!-- ═══ SELLERS TAB ═══ -->
+    <div id="section-sellers" style="display:none;">
+
+        <!-- Pending -->
+        <h2 style="font-family:'Times New Roman',serif; font-weight:400; color:var(--color-navy); margin-bottom:10px;">
+            ⏳ Pending Approvals ({{ pending_sellers|length }})
+        </h2>
+        {% if pending_sellers %}
+            {% for seller in pending_sellers %}
+            <div style="background:#fff; border:1px solid #e0ddd6; border-left:4px solid #f0a500; border-radius:3px; padding:20px; margin-bottom:16px;">
+                <h3 style="color:var(--color-navy); font-size:1em; margin-bottom:8px;">
+                    {{ seller.username }}
+                    <span style="background:#fff3cd; color:#7a5a00; font-size:0.72em; padding:2px 8px; border-radius:10px; margin-left:8px; font-weight:normal;">PENDING</span>
+                </h3>
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:14px;">
+                    <div>
+                        <p style="font-size:0.72em; color:#888; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:2px;">Email</p>
+                        <p style="font-size:0.88em;">{{ seller.email }}</p>
+                    </div>
+                    <div>
+                        <p style="font-size:0.72em; color:#888; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:2px;">GST Number</p>
+                        <p style="font-size:0.88em; font-family:monospace;">{{ seller.gst_no or 'Not provided' }}</p>
+                    </div>
+                    <div>
+                        <p style="font-size:0.72em; color:#888; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:2px;">Aadhar</p>
+                        <p style="font-size:0.88em; font-family:monospace;">{% if seller.aadhar_no %}••••••••{{ seller.aadhar_no[-4:] }}{% else %}Not provided{% endif %}</p>
+                    </div>
+                    <div>
+                        <p style="font-size:0.72em; color:#888; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:2px;">Bank Account</p>
+                        <p style="font-size:0.88em; font-family:monospace;">{% if seller.bank_ac_no %}••••{{ seller.bank_ac_no[-4:] }}{% else %}Not provided{% endif %}</p>
+                    </div>
+                </div>
+                <form action="{{ url_for('admin_approve_seller', seller_id=seller.user_id) }}" method="POST" style="display:inline;">
+                    <button type="submit" style="background:#2d8a47; color:white; border:none; padding:8px 20px; border-radius:3px; font-size:0.82em; font-weight:600; cursor:pointer; margin-right:8px;">✅ Approve</button>
+                </form>
+                <button onclick="toggleReject('reject-{{ seller.user_id }}')"
+                        style="background:#cc0000; color:white; border:none; padding:8px 20px; border-radius:3px; font-size:0.82em; font-weight:600; cursor:pointer;">❌ Reject</button>
+                <div id="reject-{{ seller.user_id }}" style="display:none; margin-top:14px; background:#fff5f5; border:1px solid #ffcccc; border-radius:3px; padding:14px;">
+                    <form action="{{ url_for('admin_reject_seller', seller_id=seller.user_id) }}" method="POST">
+                        <label style="display:block; font-size:0.78em; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:#cc0000; margin-bottom:6px;">Reason for Rejection:</label>
+                        <textarea name="rejection_reason" required rows="3" placeholder="e.g. Invalid GST number. Please resubmit with correct details."
+                                  style="width:100%; padding:8px 10px; border:1px solid #ffcccc; border-radius:3px; font-size:0.88em; font-family:Arial,sans-serif; margin-bottom:8px;"></textarea>
+                        <button type="submit" style="background:#cc0000; color:white; border:none; padding:7px 18px; border-radius:3px; font-size:0.82em; font-weight:600; cursor:pointer;">Confirm Rejection</button>
+                        <button type="button" onclick="toggleReject('reject-{{ seller.user_id }}')"
+                                style="background:#eee; color:#555; border:none; padding:7px 14px; border-radius:3px; font-size:0.82em; cursor:pointer; margin-left:6px;">Cancel</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+        <p class="text-info">No pending approvals.</p>
+        {% endif %}
+
+        <hr style="margin:25px 0;">
+
+        <!-- Approved -->
+        <h2 style="font-family:'Times New Roman',serif; font-weight:400; color:var(--color-navy); margin-bottom:14px;">✅ Approved Sellers ({{ approved_sellers|length }})</h2>
+        {% if approved_sellers %}
+        <table class="data-table" style="margin-bottom:25px;">
+            <thead>
+                <tr><th>ID</th><th>Username</th><th>Email</th><th>GST No</th><th>Bank AC</th><th>Action</th></tr>
+            </thead>
+            <tbody>
+                {% for seller in approved_sellers %}
+                <tr>
+                    <td>{{ seller.user_id }}</td>
+                    <td>{{ seller.username }}</td>
+                    <td>{{ seller.email }}</td>
+                    <td style="font-family:monospace; font-size:0.85em;">{{ seller.gst_no or '—' }}</td>
+                    <td style="font-family:monospace; font-size:0.85em;">{% if seller.bank_ac_no %}••••{{ seller.bank_ac_no[-4:] }}{% else %}—{% endif %}</td>
+                    <td>
+                        <form action="{{ url_for('admin_revoke_seller', seller_id=seller.user_id) }}" method="POST" style="display:inline;"
+                              onsubmit="return confirm('Revoke {{ seller.username }}?');">
+                            <button type="submit" style="background:#fff; color:#cc0000; border:1px solid #cc0000; padding:4px 12px; border-radius:3px; font-size:0.8em; font-weight:600; cursor:pointer;">Revoke</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-info">No approved sellers.</p>
+        {% endif %}
+
+        <!-- Rejected -->
+        <h2 style="font-family:'Times New Roman',serif; font-weight:400; color:var(--color-navy); margin-bottom:14px;">❌ Rejected Sellers ({{ rejected_sellers|length }})</h2>
+        {% if rejected_sellers %}
+        <table class="data-table">
+            <thead>
+                <tr><th>Username</th><th>Email</th><th>GST No</th><th>Rejection Reason</th><th>Action</th></tr>
+            </thead>
+            <tbody>
+                {% for seller in rejected_sellers %}
+                <tr>
+                    <td>{{ seller.username }}</td>
+                    <td>{{ seller.email }}</td>
+                    <td style="font-family:monospace; font-size:0.85em;">{{ seller.gst_no or '—' }}</td>
+                    <td style="font-size:0.85em; color:#cc0000;">{{ seller.rejection_reason or '—' }}</td>
+                    <td>
+                        <form action="{{ url_for('admin_approve_seller', seller_id=seller.user_id) }}" method="POST" style="display:inline;">
+                            <button type="submit" style="background:#2d8a47; color:white; border:none; padding:4px 12px; border-radius:3px; font-size:0.8em; font-weight:600; cursor:pointer;">Approve</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-info">No rejected sellers.</p>
+        {% endif %}
+    </div>
+
+</main>
+
+<script>
+function showTab(tab) {
+    ['earnings','products','sellers'].forEach(function(t) {
+        document.getElementById('section-' + t).style.display = t === tab ? 'block' : 'none';
+        var btn = document.getElementById('tab-' + t);
+        btn.style.background = t === tab ? 'var(--color-navy)' : '#ddd';
+        btn.style.color      = t === tab ? 'var(--color-gold)' : '#555';
+    });
+}
+function toggleReject(id) {
+    var el = document.getElementById(id);
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+{% if pending_sellers %}showTab('sellers');{% endif %}
+</script>
+{% endblock %}

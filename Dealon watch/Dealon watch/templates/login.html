@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="login-container">
+    <h2 class="login-header">{{ role }} Login</h2>
+    
+    <form method="POST" action="{{ url_for('login', user_role=role.lower()) }}" class="login-form">
+        
+        <div class="form-group">
+            <label for="identifier">Username or Email</label>
+            <input type="text" id="identifier" name="identifier" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        
+        <div class="form-group remember-me-group">
+            <input type="checkbox" id="remember" name="remember">
+            <label for="remember">Remember Me (Automatic Re-login)</label>
+        </div>
+        
+        <button type="submit" class="btn btn-login-gold">Log In</button>
+        
+        {% if role == 'Customer' or role == 'Seller' %}
+        <p class="signup-prompt">
+            Don't have an account? 
+            <a href="{{ url_for('signup', user_role=role.lower()) }}" class="signup-link">Sign Up as a {{ role }}</a>
+        </p>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}

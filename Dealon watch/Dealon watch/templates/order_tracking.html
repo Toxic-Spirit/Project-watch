@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block content %}
+<main class="container" style="max-width: 800px; margin: 40px auto;">
+    <h1 style="font-family: 'Times New Roman', serif; font-weight: 400; color: var(--color-navy); font-size: 2.4em; margin-bottom: 5px;">My Orders</h1>
+    <p style="color: #888; margin-bottom: 30px; letter-spacing: 0.05em;">Track and manage your DeaLon watch orders</p>
+
+    {% if orders %}
+        {% for order in orders %}
+        <div style="background: #fff; border: 1px solid #e0ddd6; border-radius: 4px; padding: 25px; margin-bottom: 30px;">
+
+            <!-- Order Header -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #f0ede6;">
+                <div>
+                    <h3 style="color: var(--color-navy); margin: 0; font-size: 1.1em;">Order #{{ order.order_id }}</h3>
+                    <p style="color: #888; font-size: 0.85em; margin: 4px 0 0;">
+                        Placed on {{ order.order_date.strftime('%d %B %Y, %I:%M %p') }}
+                    </p>
+                </div>
+                <div style="text-align: right;">
+                    <p style="font-weight: bold; color: var(--color-navy); font-size: 1.1em; margin: 0;">₹{{ "%.2f"|format(order.total | float) }}</p>
+                    <p style="color: #888; font-size: 0.8em; margin: 4px 0 0; text-transform: uppercase; letter-spacing: 0.05em;">
+                        via {{ order.payment_method if order.payment_method else 'Card' }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Order Items -->
+            <div style="margin-bottom: 25px;">
+                {% for item in order.items %}
+                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f5f5f5; font-size: 0.9em;">
+                    <span style="color: #333;">
+                        {% if item.product %}
+                            {{ item.product.name }}
+                        {% else %}
+                            <em style="color: #aaa;">Product no longer available</em>
+                        {% endif %}
+                        <span style="color: #888;"> × {{ item.quantity }}</span>
+                    </span>
+                    <span style="color: var(--color-navy); font-weight: 500;">₹{{ "%.2f"|format(item.price_at_purchase | float) }}</span>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Cancelled State -->
+            {% if order.status == 'Cancelled' %}
+            <div style="text-align: center; padding: 20px; background: #fff5f5; border: 1px solid #ffcccc; border-radius: 4px;">
+                <p style="color: #cc0000; font-size: 1em; font-weight: bold; margin: 0;">❌ This order has been cancelled.</p>
+                <p style="color: #888; font-size: 0.85em; margin: 8px 0 0;">Your refund will be processed within 7–10 business days.</p>
+            </div>
+
+            {% else %}
+
+            <!-- Progress Bar -->
+            {% set status = order.status %}
+            {% if status == 'Confirmed' %}{% set step = 1 %}
+            {% elif status == 'Preparing' %}{% set step = 2 %}
+            {% elif status == 'Shipped' %}{% set step = 3 %}
+            {% elif status == 'Out for Delivery' %}{% set step = 4 %}
+            {% elif status == 'Delivered' %}{% set step = 5 %}
+            {% else %}{% set step = 1 %}{% endif %}
+
+            <div style="margin-top: 10px;">
+                <p style="font-size: 0.75em; text-transform: uppercase; letter-spacing: 0.1em; color: #888; margin-bottom: 12px;">Order Status</p>
+
+                <div style="display: flex; align-items: center; justify-content: space-between; position: relative;">
+                    <div style="position: absolute; top: 18px; left: 0; right: 0; height: 3px; background: #e0ddd6; z-index: 0;"></div>
+                    <div style="position: absolute; top: 18px; left: 0; height: 3px; background: var(--color-gold); z-index: 1;
+                        width: {% if step == 1 %}0%{% elif step == 2 %}25%{% elif step == 3 %}50%{% elif step == 4 %}75%{% else %}100%{% endif %};"></div>
+
+                    {% for icon, label in [('✓', 'Order Confirmed'), ('📦', 'Being Prepared'), ('🚚', 'Shipped'), ('🏍', 'Out for Delivery'), ('🎁', 'Delivered')] %}
+                    {% set s = loop.index %}
+                    <div style="display: flex; flex-direction: column; align-items: center; z-index: 2; flex: 1;">
+                        <div style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1em;
+                            background: {% if step >= s %}var(--color-gold){% else %}#e0ddd6{% endif %};
+                            color: {% if step >= s %}var(--color-navy){% else %}#aaa{% endif %};
+                            font-weight: bold; border: 3px solid {% if step >= s %}var(--color-gold){% else %}#e0ddd6{% endif %};">
+                            {{ icon }}
+                        </div>
+                        <p style="font-size: 0.72em; margin-top: 8px; text-align: center;
+                            color: {% if step >= s %}var(--color-navy){% else %}#aaa{% endif %};
+                            font-weight: {% if step == s %}bold{% else %}normal{% endif %};">
+                            {{ label | replace(' ', '<br>') | safe }}
+                        </p>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Status Message -->
+                <div style="margin-top: 20px; padding: 12px 16px; background: #faf8f3; border-left: 3px solid var(--color-gold); border-radius: 2px;">
+                    <p style="margin: 0; font-size: 0.9em; color: var(--color-navy);">
+                        {% if status == 'Confirmed' %}✅ <strong>Order Confirmed!</strong> Your order has been received and is awaiting preparation.
+                        {% elif status == 'Preparing' %}📦 <strong>Being Prepared.</strong> Our team is carefully packaging your timepiece.
+                        {% elif status == 'Shipped' %}🚚 <strong>Shipped!</strong> Your order is on its way.
+                        {% elif status == 'Out for Delivery' %}🏍 <strong>Out for Delivery!</strong> Your watch will arrive today.
+                        {% elif status == 'Delivered' %}🎁 <strong>Delivered!</strong> Enjoy your timepiece. Thank you for shopping with DeaLon.
+                        {% endif %}
+                    </p>
+                </div>
+
+                <!-- Cancel Button — only show if order can still be cancelled -->
+                {% if order.status in ['Confirmed', 'Preparing'] %}
+                <div style="margin-top: 20px; text-align: right;">
+                    <form action="{{ url_for('cancel_order', order_id=order.order_id) }}" method="POST"
+                          onsubmit="return confirm('Are you sure you want to cancel Order #{{ order.order_id }}? This cannot be undone.');">
+                        <button type="submit"
+                                style="background: #fff; color: #cc0000; border: 1px solid #cc0000; padding: 9px 20px; border-radius: 3px; font-size: 0.85em; font-weight: 600; cursor: pointer; letter-spacing: 0.05em; transition: all 0.2s;">
+                            ❌ Cancel Order
+                        </button>
+                    </form>
+                    <p style="font-size: 0.75em; color: #aaa; margin-top: 6px;">Cancellation is only available before the order is shipped.</p>
+                </div>
+                {% elif order.status in ['Shipped', 'Out for Delivery'] %}
+                <div style="margin-top: 20px; text-align: right;">
+                    <p style="font-size: 0.8em; color: #aaa; font-style: italic;">Order cannot be cancelled — it has already been shipped.</p>
+                </div>
+                {% endif %}
+
+            </div>
+            {% endif %}
+
+        </div>
+        {% endfor %}
+
+    {% else %}
+        <div style="text-align: center; padding: 60px 20px; background: #fff; border: 1px solid #e0ddd6; border-radius: 4px;">
+            <p style="font-size: 2em; margin-bottom: 10px;">📦</p>
+            <h3 style="color: var(--color-navy); margin-bottom: 10px;">No Orders Yet</h3>
+            <p style="color: #888; margin-bottom: 20px;">You haven't placed any orders yet.</p>
+            <a href="{{ url_for('index') }}" class="btn btn-primary-gold">Browse Timepieces</a>
+        </div>
+    {% endif %}
+</main>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <h1 class="form-header">✏️ Edit Product Listing</h1>
+
+    <form method="POST" action="{{ url_for('edit_product', product_id=product.product_id) }}" enctype="multipart/form-data" class="product-form">
+
+        <div class="form-group">
+            <label for="name">Product Name:</label>
+            <input type="text" id="name" name="name" value="{{ product.name }}" required maxlength="255">
+        </div>
+
+        <div class="form-group">
+            <label for="brand">Brand:</label>
+            <input type="text" id="brand" name="brand" value="{{ product.brand }}" required maxlength="100">
+        </div>
+
+        <div class="form-group-row">
+            <div class="form-group half-width">
+                <label for="price">Price (₹):</label>
+                <!-- Price: max 9 digits -->
+                <input type="number" id="price" name="price"
+                       value="{{ product.price | float }}"
+                       step="0.01" min="0" max="999999999"
+                       oninput="if(this.value.replace('.','').replace('-','').length > 9) this.value = this.value.slice(0, 9);"
+                       required>
+                <small style="color: #888; font-size: 0.78em;">Max: ₹999,999,999</small>
+            </div>
+            <div class="form-group half-width">
+                <label for="stock">Stock Quantity:</label>
+                <!-- Stock: max 5 digits -->
+                <input type="number" id="stock" name="stock"
+                       value="{{ product.stock }}"
+                       min="0" max="99999"
+                       oninput="if(this.value.length > 5) this.value = this.value.slice(0, 5);"
+                       required>
+                <small style="color: #888; font-size: 0.78em;">Max: 99,999 units</small>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="category">Category (Determines Purchase Limit):</label>
+            <select id="category" name="category" required>
+                <option value="">-- Select Category --</option>
+                {% for category in categories %}
+                    <option value="{{ category.category_id }}" {% if category.category_id == product.category_id %}selected{% endif %}>
+                        {{ category.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" rows="5" required>{{ product.description }}</textarea>
+        </div>
+
+        <p class="text-info">Image management must be done separately.</p>
+
+        <button type="submit" class="btn btn-submit-gold">Update Listing</button>
+    </form>
+</div>
+{% endblock %}

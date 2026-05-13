@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="login-container" style="max-width: {% if role == 'Seller' %}560px{% else %}450px{% endif %};">
+    <h2 class="login-header">{{ role }} Signup</h2>
+    <p style="text-align:center; color:#888; font-size:0.88em; margin-bottom:20px;">Create a new {{ role }} account for DeaLon Watches.</p>
+
+    <form method="POST" action="{{ url_for('signup', user_role=role.lower()) }}" class="login-form">
+
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required maxlength="80">
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required maxlength="120">
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+
+        {% if role == 'Seller' %}
+        <hr style="margin: 20px 0; border-color: #e0ddd6;">
+        <p style="font-size: 0.8em; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-navy); margin-bottom: 14px;">
+            Business Verification Details
+        </p>
+        <p style="font-size: 0.8em; color: #888; margin-bottom: 16px;">
+            Your account will be reviewed by our admin team before activation. Please provide accurate details.
+        </p>
+
+        <div class="form-group">
+            <label for="gst_no">GST Number</label>
+            <input type="text" id="gst_no" name="gst_no" required
+                   maxlength="15" placeholder="e.g. 22AAAAA0000A1Z5"
+                   style="text-transform: uppercase;"
+                   oninput="this.value = this.value.toUpperCase().slice(0, 15)">
+            <small style="color:#888; font-size:0.78em;">15-character GST Identification Number</small>
+        </div>
+
+        <div class="form-group">
+            <label for="aadhar_no">Aadhar Number</label>
+            <input type="text" id="aadhar_no" name="aadhar_no" required
+                   maxlength="12" placeholder="12 digit Aadhar number"
+                   oninput="this.value = this.value.replace(/[^0-9]/g,'').slice(0,12)">
+            <small style="color:#888; font-size:0.78em;">12-digit Aadhar Card Number</small>
+        </div>
+
+        <div class="form-group">
+            <label for="bank_ac_no">Bank Account Number</label>
+            <input type="text" id="bank_ac_no" name="bank_ac_no" required
+                   maxlength="18" placeholder="Enter bank account number"
+                   oninput="this.value = this.value.replace(/[^0-9]/g,'').slice(0,18)">
+            <small style="color:#888; font-size:0.78em;">Your bank account for receiving payments</small>
+        </div>
+
+        <div style="background: #fff8e1; border: 1px solid #f0c040; border-radius: 3px; padding: 12px; margin-bottom: 18px;">
+            <p style="font-size: 0.82em; color: #7a5a00; margin: 0;">
+                ⚠️ <strong>Note:</strong> After registration, your account will be pending admin approval. 
+                You will be able to login only after your account is approved.
+            </p>
+        </div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-submit-gold">
+            {% if role == 'Seller' %}Submit for Approval{% else %}Sign Up{% endif %}
+        </button>
+
+        <p class="signup-prompt">
+            Already have an account?
+            <a href="{{ url_for('login', user_role=role.lower()) }}" class="signup-link">Log In Here</a>
+        </p>
+    </form>
+</div>
+{% endblock %}

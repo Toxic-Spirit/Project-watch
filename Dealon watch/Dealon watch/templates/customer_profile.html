@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="dashboard-container">
+    <h1 class="dashboard-header">👤 Welcome, {{ session.username }}!</h1>
+    <p class="welcome-message">Manage your account and track your orders.</p>
+    
+    <div class="profile-sections">
+        <h2 style="font-family: 'Times New Roman', serif; font-weight: 400; color: var(--color-navy); margin-bottom: 15px;">Account Overview</h2>
+        <ul style="display: flex; flex-direction: column; gap: 10px;">
+            <li>
+                <a href="{{ url_for('order_tracking') }}" class="btn btn-primary-gold">📦 View My Orders & Track</a>
+            </li>
+            <li style="margin-top: 5px;">
+                <a href="{{ url_for('index') }}" class="btn btn-primary-gold">🕐 Browse Timepieces</a>
+            </li>
+        </ul>
+    </div>
+</main>
+{% endblock %}
